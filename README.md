@@ -1,36 +1,51 @@
 # Real-Time Facial Emotion Recognition System
 
-A computer vision pipeline that detects facial emotions via webcam and plays mood-matching music in real time.
+A computer vision pipeline that detects facial emotions via webcam and plays mood-matching music in real time. Includes a custom PyTorch CNN trained on FER-2013, with full evaluation pipeline and confusion matrix analysis.
 
-## What it does
-- Captures live webcam feed using OpenCV
-- Runs two emotion classifiers simultaneously:
-  - **DeepFace** (VGG-Face backbone) for music selection
-  - **Custom PyTorch CNN** trained on FER-2013 for real-time inference
-- Plays mood-matched music based on detected emotion
-- Displays both model predictions on screen simultaneously
+## Results
 
-## PyTorch Model
-- 3-layer CNN trained from scratch on FER-2013 dataset (35,000 facial images)
-- Architecture: Conv2d → MaxPool → Conv2d → MaxPool → Conv2d → MaxPool → FC → FC
-- Test accuracy: **58.48%** across 7 emotion classes
-- Runs on Apple M1 MPS backend for CPU-efficient inference
+| Emotion | Accuracy |
+|---------|----------|
+| happy | 80.1% |
+| surprise | 71.2% |
+| neutral | 60.7% |
+| angry | 52.5% |
+| disgust | 45.0% |
+| sad | 40.5% |
+| fear | 37.0% |
+| **Overall** | **58.48%** |
 
-## Tech Stack
-Python, PyTorch, OpenCV, DeepFace, Pygame
+Happy and surprise perform strongest due to distinct facial muscle patterns. Fear and sad are hardest — consistent with human difficulty distinguishing these emotions, and a known challenge in the FER-2013 dataset.
 
-## Detection accuracy
-- PyTorch model: 58.48% on FER-2013 test set
-- Optimised inference loop — 4-second detection interval to reduce CPU load
+## Architecture
+
+- 3× Conv2d layers (1→32→64→128 filters) + MaxPool2d + Dropout(0.5)
+- Trained on FER-2013 (35,000 facial images, 7 emotion classes)
+- Apple M1 MPS backend for GPU-accelerated training
+
+## Two simultaneous classifiers
+
+The live pipeline runs two models side by side:
+- Custom PyTorch CNN (trained from scratch on FER-2013)
+- DeepFace (VGG-Face backbone) for music selection
+
+Both predictions are displayed on screen simultaneously.
+
+## Evaluation pipeline (`evaluate.py`)
+
+- Per-class accuracy breakdown across all 7 emotions
+- Confusion matrix with matplotlib visualisation
+- Results exported to `results.json`
+
+## Tech stack
+
+Python, PyTorch, OpenCV, DeepFace, Pygame, scikit-learn, matplotlib
 
 ## How to run
-```bash
-pip install torch torchvision opencv-python deepface pygame
-python3 emotion_model.py   # train the PyTorch model first
-python3 main.py            # run the live pipeline
-```
 
-## Key engineering decisions
-- PyTorch model predicts on full frame; DeepFace crops face region first — trade-off between speed and accuracy noted
-- Duplicate-play prevention logic avoids replaying the same song
-- Modular design: model training (emotion_model.py) separated from inference pipeline (main.py)
+```bash
+pip install torch torchvision opencv-python deepface pygame scikit-learn matplotlib
+python3 emotion_model.py   # train PyTorch model
+python3 evaluate.py        # run evaluation + generate confusion matrix
+python3 main.py            # run live pipeline
+```

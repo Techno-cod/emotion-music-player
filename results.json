@@ -1,0 +1,12 @@
+{
+  "overall_accuracy": 58.48,
+  "per_class_accuracy": {
+    "angry": 52.51,
+    "disgust": 45.05,
+    "fear": 37.01,
+    "happy": 80.1,
+    "neutral": 60.67,
+    "sad": 40.5,
+    "surprise": 71.24
+  }
+}
